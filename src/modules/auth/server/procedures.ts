@@ -1,10 +1,10 @@
-import { headers as getHeaders, cookies as getCookies } from "next/headers";
+import { headers as getHeaders } from "next/headers";
 
 import { TRPCError } from "@trpc/server";
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
 
-import { AUTH_COOKIE } from "../constants";
 import { loginSchema, registerSchema } from "../schemas";
+import { generateAuthCookie } from "../utils";
 
 export const authRouter = createTRPCRouter({
     session: baseProcedure.query(async ({ ctx }) => {
@@ -13,10 +13,6 @@ export const authRouter = createTRPCRouter({
         const session = await ctx.payload.auth({ headers });
 
         return session;
-    }),
-    logout: baseProcedure.mutation(async () => {
-        const cookies = await getCookies();
-        cookies.delete(AUTH_COOKIE);
     }),
     register: baseProcedure
         .input(registerSchema)
@@ -64,17 +60,9 @@ export const authRouter = createTRPCRouter({
                 });
             };
 
-            const cookies = await getCookies();
-            cookies.set({
-                name: AUTH_COOKIE,
+            await generateAuthCookie({
+                prefix: ctx.payload.config.cookiePrefix,
                 value: data.token,
-                httpOnly: true,
-                path: "/",
-                // sameSite: "none",
-                // domain: "",
-                // TODO: Ensure cross-domain cookie sharing
-                // funroad.com // initial cookie
-                // satya.funroad.com // cookie does not exist here
             });
         }),
     login: baseProcedure
@@ -95,17 +83,9 @@ export const authRouter = createTRPCRouter({
                 });
             };
 
-            const cookies = await getCookies();
-            cookies.set({
-                name: AUTH_COOKIE,
+            await generateAuthCookie({
+                prefix: ctx.payload.config.cookiePrefix,
                 value: data.token,
-                httpOnly: true,
-                path: "/",
-                // sameSite: "none",
-                // domain: "",
-                // TODO: Ensure cross-domain cookie sharing
-                // funroad.com // initial cookie
-                // satya.funroad.com // cookie does not exist here
             });
 
             return data;
