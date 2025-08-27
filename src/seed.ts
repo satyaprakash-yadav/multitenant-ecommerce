@@ -137,8 +137,10 @@ const categories = [
     },
 ];
 
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 const seed = async () => {
     const payload = await getPayload({ config });
+    await delay(100);
 
     // Create admin tenant
     const adminTenant = await payload.create({
@@ -150,6 +152,7 @@ const seed = async () => {
         },
     });
 
+    await delay(100);
     // Create admin user
     await payload.create({
         collection: "users",
@@ -165,29 +168,35 @@ const seed = async () => {
             ],
         },
     });
-
+    await delay(100);
     for (const category of categories) {
-        const parentCategory = await payload.create({
-            collection: "categories",
-            data: {
-                name: category.name,
-                slug: category.slug,
-                color: category.color,
-                parent: null,
-            },
-        });
-
-        for (const subCategory of category.subcategories || []) {
-            await payload.create({
+        try {
+            const parentCategory = await payload.create({
                 collection: "categories",
                 data: {
-                    name: subCategory.name,
-                    slug: subCategory.slug,
-                    parent: parentCategory.id,
+                    name: category.name,
+                    slug: category.slug,
+                    color: category.color,
+                    parent: null,
                 },
             });
-        };
-    };
+            await delay(20);
+
+            for (const subCategory of category.subcategories || []) {
+                await payload.create({
+                    collection: "categories",
+                    data: {
+                        name: subCategory.name,
+                        slug: subCategory.slug,
+                        parent: parentCategory.id,
+                    },
+                });
+                await delay(20);
+            };
+        } catch (err) {
+            console.error("Failed to seed category:", err);
+        }
+    }
 };
 
 try {
