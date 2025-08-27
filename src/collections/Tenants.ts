@@ -22,7 +22,7 @@ export const Tenants: CollectionConfig = {
             required: true,
             unique: true,
             admin: {
-                description: "This is the sundomain for the store (e.g. [slug].funroad.com)",
+                description: "This is the subdomain for the store (e.g. [slug].funroad.com)",
             },
         },
         {
