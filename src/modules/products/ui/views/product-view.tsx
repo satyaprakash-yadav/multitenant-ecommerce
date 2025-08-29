@@ -3,6 +3,7 @@
 // TODO: Add real ratings
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { Fragment } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { LinkIcon, StarIcon } from "lucide-react";
@@ -12,6 +13,18 @@ import { Progress } from "@/components/ui/progress";
 import { useTRPC } from "@/trpc/client";
 import { StarRating } from "@/components/star-rating";
 import { formatCurrency, generateTenantURL } from "@/lib/utils";
+
+import { CartButton } from "../components/cart-button";
+
+// const CartButton = dynamic(
+//     () => import("../components/cart-button").then(
+//         (mod) => mod.CartButton,
+//     ),
+//     {
+//         ssr: false,
+//         loading: () => <Button disabled className="flex-1 bg-pink-400">Add to cart</Button>
+//     },
+// );
 
 interface ProductViewProps {
     productId: string;
@@ -90,7 +103,7 @@ export const ProductView = ({
                         <div className="p-6">
                             {data.description ? (
                                 <p className="">{data.description}</p>
-                            ): (
+                            ) : (
                                 <p className="font-medium text-muted-foreground italic">
                                     No description provided.
                                 </p>
@@ -102,12 +115,10 @@ export const ProductView = ({
                         <div className="border-t lg:border-t-0 lg:border-l h-full">
                             <div className="flex flex-col gap-4 p-6 border-b">
                                 <div className="flex flex-row items-center gap-2">
-                                    <Button
-                                        variant="elevated"
-                                        className="flex-1 bg-pink-400"
-                                    >
-                                        Add to cart
-                                    </Button>
+                                    <CartButton
+                                        productId={productId}
+                                        tenantSlug={tenantSlug}
+                                    />
                                     <Button
                                         className="size-12"
                                         variant="elevated"
@@ -139,8 +150,8 @@ export const ProductView = ({
                                 <div className="grid grid-cols-[auto_1fr_auto] gap-3 mt-4">
                                     {[5, 4, 3, 2, 1].map((stars) => (
                                         <Fragment key={stars}>
-                                            <div className="font-medium">{stars} {stars === 1 ? "star": "stars"}</div>
-                                            <Progress 
+                                            <div className="font-medium">{stars} {stars === 1 ? "star" : "stars"}</div>
+                                            <Progress
                                                 value={25}
                                                 className="h-[1lh]"
                                             />
