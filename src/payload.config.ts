@@ -1,12 +1,14 @@
 // storage-adapter-import-placeholder
-import { mongooseAdapter } from '@payloadcms/db-mongodb'
-import { payloadCloudPlugin } from '@payloadcms/payload-cloud'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob';
+import { payloadCloudPlugin } from '@payloadcms/payload-cloud';
+
 import path from 'path'
+import sharp from 'sharp'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
-import sharp from 'sharp'
 
 import { isSuperAdmin } from './lib/access'
 
@@ -55,6 +57,12 @@ export default buildConfig({
       },
       userHasAccessToAllTenants: (user) => isSuperAdmin(user),
     }),
-    // storage-adapter-placeholder
+    vercelBlobStorage({
+      enabled: true,
+      collections: {
+        media: true,
+      },
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    })
   ],
 })
